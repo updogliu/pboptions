@@ -13,14 +13,21 @@ import (
 
 func main() {
 	req := (*pb.RequestType)(nil)
-	fileDescriptor, _ /*msgDescriptor*/ := desc.ForMessage(req)
+	fileDescriptor, msgDescriptor := desc.ForMessage(req)
 
-	// fmt.Println("fileDescriptor: ", pb2json(fileDescriptor))
-	// fmt.Println("msgDescriptor: ", pb2json(msgDescriptor))
-	// fmt.Printf("msgDescriptor: %+v", msgDescriptor)
+	fmt.Println("fileDescriptor: ", pb2json(fileDescriptor))
+	fmt.Println("msgDescriptor: ", pb2json(msgDescriptor))
+	// fmt.Printf("msgDescriptor: %+v\n", msgDescriptor)
 
 	method := FindMethod(fileDescriptor, "/mypb.MyService/MyMethod")
 	fmt.Println("method: ", pb2json(method))
+	fmt.Printf("method.Options: (%v)\n", method.Options.String())
+	opts, err := proto.GetExtension(method.Options, pb.E_MyMethodOption)
+	if err != nil {
+		panic(err)
+	}
+	msg := opts.(*pb.MyMessage)
+	fmt.Println("foo:", msg.Foo, "bar:", msg.Bar)
 }
 
 func FindMethod(fd *descpb.FileDescriptorProto, fullMethodName string) *descpb.MethodDescriptorProto {
